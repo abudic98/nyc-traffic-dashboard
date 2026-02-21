@@ -59,11 +59,18 @@ async function fetchAggregatedData(showLoading = true) {
         document.getElementById('loading').classList.remove('hidden');
     }
 
+    // Početak mjerenja ukupnog vremena
+    const totalStartTime = Date.now();
+    console.group('📊 Data Loading Performance');
+    console.log('🚀 Starting data fetch...');
+
     try {
         // Korak 1: Učitaj LION geometriju
         if (!AppState.lionDataLoaded) {
+            const lionStartTime = Date.now();
             const lionLoaded = await loadLionData();
             if (!lionLoaded) throw new Error('Failed to load LION street geometry');
+            console.log(`   📍 LION geometry loaded: ${Date.now() - lionStartTime}ms`);
         }
 
         updateProgress('Fetching data from server...', 20);
@@ -78,21 +85,28 @@ async function fetchAggregatedData(showLoading = true) {
             range: AppState.selectedRange
         };
 
+        // Log filtera
+        console.log('   🔍 Filters:', {
+            boroughs: params.boroughs || 'All',
+            dateRange: params.startDate ? `${params.startDate} → ${params.endDate}` : 'All data',
+            range: params.range
+        });
+
         // Korak 3: Dohvati podatke sa servera
-        const startTime = Date.now();
+        const fetchStartTime = Date.now();
         const response = await axios.get(`${API_BASE_URL}/data`, {
             params: params,
             timeout: 120000
         });
         
         const data = response.data;
-        const fetchTime = Date.now() - startTime;
-
-        console.log(`Data fetched in ${fetchTime}ms`, data.fromCache ? '(from cache)' : '(fresh)');
+        const fetchTime = Date.now() - fetchStartTime;
+        console.log(`   🌐 Server fetch: ${fetchTime}ms ${data.fromCache ? '(cached ⚡)' : '(fresh)'}`);
         
         updateProgress('Processing data...', 70);
 
         // Korak 4: Konvertiraj server podatke u Maps
+        const processStartTime = Date.now();
         AppState.allHourlyData.clear();
         for (let h = 0; h < 24; h++) {
             const hourData = data.trafficByHour[h] || {};
@@ -103,12 +117,15 @@ async function fetchAggregatedData(showLoading = true) {
         for (let h = 0; h < 24; h++) {
             AppState.collisionsByHour.set(h, data.collisionsByHour[h] || []);
         }
+        console.log(`   ⚙️ Data processing: ${Date.now() - processStartTime}ms`);
 
         // Korak 5: Renderiranje
         updateProgress('Rendering map...', 95);
+        const renderStartTime = Date.now();
         const currentHour = parseInt(document.getElementById('hourSlider').value);
         displayHourData(currentHour);
         updateCollisionLayerForHour(currentHour);
+        console.log(`   🗺️ Map rendering: ${Date.now() - renderStartTime}ms`);
 
         // Ažuriraj statistike
         const meta = data.meta || {};
@@ -121,10 +138,21 @@ async function fetchAggregatedData(showLoading = true) {
         updateProgress('Complete!', 100);
 
         // Ažuriraj grafove
+        const chartsStartTime = Date.now();
         updateDashboardCharts();
+        console.log(`   📈 Charts update: ${Date.now() - chartsStartTime}ms`);
+
+        // Ukupno vrijeme
+        const totalTime = Date.now() - totalStartTime;
+        console.log(`✅ Total loading time: ${totalTime}ms`);
+        console.log(`   📊 Records: ${formatNumber(meta.trafficCount || 0)} traffic, ${formatNumber(meta.collisionCount || 0)} collisions`);
+        console.groupEnd();
 
     } catch (error) {
         console.error('Error fetching data:', error);
+        console.log(`❌ Failed after ${Date.now() - totalStartTime}ms`);
+        console.groupEnd();
+        
         const errorMsg = axios.isAxiosError(error) 
             ? (error.response?.data?.error || error.message)
             : error.message;

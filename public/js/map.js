@@ -189,6 +189,12 @@ function renderTraffic(features) {
     // Drži sudare na vrhu
     if (map.getLayer('collision-glow')) map.moveLayer('collision-glow');
     if (map.getLayer('collision-circles')) map.moveLayer('collision-circles');
+    
+    // Postavi popup za traffic linije (samo jednom)
+    if (!AppState.trafficPopupInitialized) {
+        setupTrafficPopup(map);
+        AppState.trafficPopupInitialized = true;
+    }
 }
 
 // Ažuriraj sloj sudara za sat
@@ -272,11 +278,19 @@ function setupCollisionLayers(map) {
         const p = f.properties || {};
         const coords = f.geometry.coordinates.slice();
 
+        // Formatiraj datum (iz ISO formata u čitljiv format)
+        let formattedDate = '-';
+        if (p.crash_date) {
+            const dateStr = p.crash_date.split('T')[0];
+            const [year, month, day] = dateStr.split('-');
+            formattedDate = `${day}.${month}.${year}`;
+        }
+
         new mapboxgl.Popup()
             .setLngLat(coords)
             .setHTML(`
                 <div style="font-weight:700; margin-bottom:6px;">⚠️ Collision</div>
-                <div><b>Date:</b> ${p.crash_date || '-'}</div>
+                <div><b>Date:</b> ${formattedDate}</div>
                 <div><b>Time:</b> ${p.crash_time || '-'}</div>
                 <div><b>Borough:</b> ${p.borough || '-'}</div>
                 <div><b>Injured:</b> ${p.injured || 0}</div>
@@ -291,6 +305,48 @@ function setupCollisionLayers(map) {
         map.getCanvas().style.cursor = 'pointer'; 
     });
     map.on('mouseleave', 'collision-circles', () => { 
+        map.getCanvas().style.cursor = ''; 
+    });
+}
+
+// Postavi popup za prometne linije
+function setupTrafficPopup(map) {
+    // Click handler za prometne linije
+    map.on('click', 'traffic-lines-main', (e) => {
+        if (!e.features || !e.features.length) return;
+        const f = e.features[0];
+        const p = f.properties || {};
+        
+        // Dohvati koordinate klika
+        const coords = e.lngLat;
+
+        // Formatiraj smjer
+        const directionFull = DIRECTION_MAP[p.direction] || p.direction || '-';
+        
+        // Formatiraj volumen
+        const volume = p.hourlyVolume ? formatFullNumber(p.hourlyVolume) : '-';
+
+        new mapboxgl.Popup()
+            .setLngLat(coords)
+            .setHTML(`
+                <div style="font-weight:700; margin-bottom:6px;">🚗 Traffic Volume</div>
+                <div><b>Street:</b> ${p.street || '-'}</div>
+                <div><b>From:</b> ${p.fromSt || '-'}</div>
+                <div><b>To:</b> ${p.toSt || '-'}</div>
+                <div><b>Direction:</b> ${directionFull}</div>
+                <div><b>Borough:</b> ${p.boro || '-'}</div>
+                <div style="margin-top:6px; padding-top:6px; border-top:1px solid rgba(255,255,255,0.2);">
+                    <b>Hourly Volume:</b> <span style="color:${p.color || '#fff'}; font-weight:700;">${volume}</span>
+                </div>
+            `)
+            .addTo(map);
+    });
+
+    // Cursor change na hover
+    map.on('mouseenter', 'traffic-lines-main', () => { 
+        map.getCanvas().style.cursor = 'pointer'; 
+    });
+    map.on('mouseleave', 'traffic-lines-main', () => { 
         map.getCanvas().style.cursor = ''; 
     });
 }

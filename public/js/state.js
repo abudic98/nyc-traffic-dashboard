@@ -15,6 +15,7 @@ const AppState = {
     isPlaying: false,
     playInterval: null,
     playSpeed: 1000,
+    trafficPopupInitialized: false,
     
     // Vidljivost slojeva
     showTraffic: true,
