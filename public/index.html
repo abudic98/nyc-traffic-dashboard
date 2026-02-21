@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYC Traffic Dashboard</title>
+    
+    <!-- Mapbox GL JS -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+    
+    <!-- D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <!-- Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.2/dist/axios.min.js"></script>
+    
+    <!-- Google Fontovi -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Prilagođeni stilovi -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Učitavanje -->
+    <div class="loading-overlay" id="loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading NYC Traffic Data</div>
+        <div class="loading-progress" id="loadingProgress">Initializing...</div>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+    </div>
+
+    <!-- Gornja traka zaglavlja -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <div class="logo-icon">🚦</div>
+                <span class="logo-text">NYC Traffic Dashboard</span>
+            </div>
+            <div class="header-stats">
+                <div class="header-stat">
+                    <span class="header-stat-value" id="headerTrafficRecords">0</span>
+                    <span class="header-stat-label">Traffic Records</span>
+                </div>
+                <div class="header-stat">
+                    <span class="header-stat-value" id="headerCollisionRecords">0</span>
+                    <span class="header-stat-label">Collision Records</span>
+                </div>
+                <div class="header-stat">
+                    <span class="header-stat-value" id="headerBoroughs">5</span>
+                    <span class="header-stat-label">Boroughs</span>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="status-indicator" id="statusIndicator">
+                <span class="status-dot"></span>
+                <span class="status-text">Ready</span>
+            </div>
+            <button class="analytics-btn" id="analyticsBtn" type="button" aria-haspopup="dialog" aria-controls="analyticsDrawer">Analytics</button>
+        </div>
+    </header>
+
+    <!-- Traka filtera -->
+    <div class="filter-bar">
+        <div class="filter-section">
+            <label class="filter-label" for="dateFilter">Date:</label>
+            <input type="date" id="dateFilter" class="filter-input">
+        </div>
+
+        <div class="filter-section">
+            <label class="filter-label">Range:</label>
+            <div class="quick-btns">
+                <button class="quick-btn" data-days="1">1 Day</button>
+                <button class="quick-btn" data-days="7">7 Days</button>
+                <button class="quick-btn" data-days="30">30 Days</button>
+                <button class="quick-btn" data-days="90">90 Days</button>
+                <button class="quick-btn" data-days="180">6 Months</button>
+                <button class="quick-btn" data-days="365">1 Year</button>
+                <button class="quick-btn active" data-days="all">All Time</button>
+            </div>
+        </div>
+
+        <button class="apply-btn" id="refreshBtn">
+            Apply Filters
+        </button>
+
+        <div class="data-range-info">
+            <span id="dataRangeText">Showing: All available data</span>
+        </div>
+    </div>
+
+    <!-- Područje glavnog sadržaja -->
+    <div class="main-content">
+        <!-- Lijeva bočna traka - Kontrole -->
+        <aside class="left-sidebar">
+            <div class="sidebar-section">
+                <div class="section-title">Filter by Borough</div>
+                <div class="boro-filters" id="boroPills">
+                    <button class="boro-btn active" data-boro="all">All</button>
+                    <button class="boro-btn" data-boro="Manhattan">Manhattan</button>
+                    <button class="boro-btn" data-boro="Brooklyn">Brooklyn</button>
+                    <button class="boro-btn" data-boro="Queens">Queens</button>
+                    <button class="boro-btn" data-boro="Bronx">Bronx</button>
+                    <button class="boro-btn" data-boro="Staten Island">Staten Island</button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title">Data Layers</div>
+                <div class="layer-toggles">
+                    <button class="layer-btn active" data-layer="collisions" id="pillCollisions">
+                        <span class="layer-dot collision"></span>
+                        Collisions
+                    </button>
+                    <button class="layer-btn active" data-layer="traffic" id="pillTraffic">
+                        <span class="layer-dot traffic"></span>
+                        Traffic Volume
+                    </button>
+                </div>
+            </div>
+
+            <!-- Legenda -->
+            <div class="sidebar-section legend-section">
+                <div class="section-title">Volume Legend</div>
+                <div id="legend" class="legend-grid"></div>
+                <div class="legend-note" id="dataNote">Hourly Volume (vehicles/hour)</div>
+            </div>
+        </aside>
+
+        <!-- Spremnik za kartu -->
+        <div class="map-wrapper">
+            <div id="map"></div>
+            
+            <!-- Klizač vremena -->
+            <div class="time-slider-container">
+                <div class="time-slider-header">
+                    <span class="time-slider-title">Time of Day</span>
+                    <div class="time-display">
+                        <span id="timeValue">12:00</span>
+                        <span class="period" id="timePeriod">PM</span>
+                    </div>
+                </div>
+                <div class="slider-wrapper">
+                    <div class="slider-gradient"></div>
+                    <input type="range" min="0" max="23" value="12" class="time-slider" id="hourSlider">
+                </div>
+                <div class="time-labels">
+                    <span>12AM</span>
+                    <span>6AM</span>
+                    <span>12PM</span>
+                    <span>6PM</span>
+                    <span>11PM</span>
+                </div>
+                <div class="play-controls">
+                    <button class="play-btn" id="playBtn">
+                        <svg viewBox="0 0 24 24" id="playIcon"><polygon points="5,3 19,12 5,21"/></svg>
+                        <svg viewBox="0 0 24 24" id="pauseIcon" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                    </button>
+                    <span class="speed-label">Speed:</span>
+                    <div class="speed-btns">
+                        <button class="speed-btn" data-speed="2000">0.5x</button>
+                        <button class="speed-btn active" data-speed="1000">1x</button>
+                        <button class="speed-btn" data-speed="500">2x</button>
+                        <button class="speed-btn" data-speed="250">4x</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ladica za anlitiku -->
+    <div class="drawer-overlay" id="analyticsOverlay" aria-hidden="true"></div>
+    <aside class="analytics-drawer" id="analyticsDrawer" aria-hidden="true" aria-labelledby="analyticsDrawerTitle">
+        <div class="drawer-header">
+            <div class="drawer-title" id="analyticsDrawerTitle">Analytics</div>
+            <button class="drawer-close" id="analyticsCloseBtn" type="button" aria-label="Close analytics">✕</button>
+        </div>
+        <div class="drawer-body">
+            <div class="right-sidebar analytics-panel" id="analyticsPanel">
+                    <!-- Ključne metrike -->
+                    <div class="metrics-grid">
+                        <div class="metric-card blue">
+                            <div class="metric-icon">📊</div>
+                            <div class="metric-value" id="avgVolume">0</div>
+                            <div class="metric-label">Avg 15-min Volume</div>
+                        </div>
+                        <div class="metric-card red">
+                            <div class="metric-icon">⚠️</div>
+                            <div class="metric-value" id="totalCollisions">0</div>
+                            <div class="metric-label">Total Collisions</div>
+                        </div>
+                        <div class="metric-card green">
+                            <div class="metric-icon">🚗</div>
+                            <div class="metric-value" id="totalVolume">0</div>
+                            <div class="metric-label">Vehicles Recorded</div>
+                        </div>
+                        <div class="metric-card purple">
+                            <div class="metric-icon">📍</div>
+                            <div class="metric-value" id="totalSegments">0</div>
+                            <div class="metric-label">Unique Segments</div>
+                        </div>
+                    </div>
+
+                    <!-- Zaglavlje sekcije: Promet -->
+                    <div class="section-divider">
+                        <span class="section-divider-icon">🚦</span>
+                        <span class="section-divider-text">Traffic Analysis</span>
+                    </div>
+
+                    <!-- Obujam prometa po pvartu -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <span class="chart-icon">📊</span>
+                            <span class="chart-title">Traffic Volume by Borough</span>
+                            <span class="chart-subtitle" id="boroChartSubtitle">5 boroughs</span>
+                        </div>
+                        <div class="chart-container" id="boroChart"></div>
+                    </div>
+
+                    <!-- Obujam prometa po satu -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <span class="chart-icon">🕐</span>
+                            <span class="chart-title">Traffic Volume by Hour</span>
+                            <span class="chart-subtitle">24h pattern</span>
+                        </div>
+                        <div class="chart-container" id="trafficHourChart"></div>
+                    </div>
+
+                    <!-- Raspodjela smjera prometa -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <span class="chart-icon">🧭</span>
+                            <span class="chart-title">Traffic by Direction</span>
+                            <span class="chart-subtitle">flow patterns</span>
+                        </div>
+                        <div class="chart-container" id="trafficDirectionChart"></div>
+                    </div>
+
+                    <!-- Najprometniji ulice po obujmu -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <span class="chart-icon">🛣️</span>
+                            <span class="chart-title">Busiest Streets</span>
+                            <span class="chart-subtitle">top 8 by volume</span>
+                        </div>
+                        <div class="top-streets-list" id="topStreetsList"></div>
+                    </div>
+
+                    <!-- Zaglavlje sekcije: Sudari -->
+                    <div class="section-divider">
+                        <span class="section-divider-icon">⚠️</span>
+                        <span class="section-divider-text">Collision Analysis</span>
+                    </div>
+
+                    <!-- Statistika ozljeda -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <span class="chart-icon">🏥</span>
+                            <span class="chart-title">Collision Casualties</span>
+                            <span class="chart-subtitle" id="injurySubtitle">injuries & fatalities</span>
+                        </div>
+                        <div class="injury-stats-grid" id="injuryStats"></div>
+                    </div>
+
+                    <!-- Sudari po satu -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <span class="chart-icon">🕐</span>
+                            <span class="chart-title">Collisions by Hour</span>
+                            <span class="chart-subtitle">24h pattern</span>
+                        </div>
+                        <div class="chart-container" id="collisionChart"></div>
+                    </div>
+
+                    <!-- Sudari po kvartu -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <span class="chart-icon">🗺️</span>
+                            <span class="chart-title">Collisions by Borough</span>
+                            <span class="chart-subtitle" id="collisionBoroSubtitle">distribution</span>
+                        </div>
+                        <div class="chart-container" id="collisionBoroChart"></div>
+                    </div>
+
+                    <!-- Vrste vozila uključenih u sudare -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <span class="chart-icon">🚙</span>
+                            <span class="chart-title">Vehicle Types Involved</span>
+                            <span class="chart-subtitle">top categories</span>
+                        </div>
+                        <div class="vehicle-types-grid" id="vehicleTypesGrid"></div>
+                    </div>
+
+                    <!-- Glavni uzroci sudara -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <span class="chart-icon">⚡</span>
+                            <span class="chart-title">Top Contributing Factors</span>
+                        </div>
+                        <div class="factors-list" id="factorsList"></div>
+                    </div>
+
+                    <!-- Mjesečni trend sudara -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <span class="chart-icon">📈</span>
+                            <span class="chart-title">Monthly Collision Trend</span>
+                            <span class="chart-subtitle">last 12 months</span>
+                        </div>
+                        <div class="chart-container tall" id="monthlyTrendChart"></div>
+                    </div>
+
+                    <!-- Tjedna toplinska karta -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <span class="chart-icon">🗓️</span>
+                            <span class="chart-title">Weekly Collision Heatmap</span>
+                        </div>
+                        <div class="heatmap-container" id="weeklyHeatmap"></div>
+                    </div>
+        </div>
+        </div>
+    </aside>
+
+    <!-- Skriveni elementi za kompatibilnost -->
+    <select id="yearFilter" style="display:none"><option value="all">All</option></select>
+    <select id="monthFilter" style="display:none"><option value="all">All</option></select>
+    <select id="boroFilter" style="display:none"><option value="all">All</option></select>
+    <select id="dayFilter" style="display:none"><option value="all">All Days</option></select>
+
+    <!-- JavaScript Moduli (redoslijed je bitan!) -->
+    <script src="js/config.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

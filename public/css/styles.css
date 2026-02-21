@@ -1,0 +1,1646 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-primary: #0d1117;
+    --bg-secondary: #161b22;
+    --bg-tertiary: #21262d;
+    --border-color: #30363d;
+    --text-primary: #f0f6fc;
+    --text-secondary: #8b949e;
+    --text-muted: #6e7681;
+    --accent-blue: #58a6ff;
+    --accent-green: #3fb950;
+    --accent-yellow: #d29922;
+    --accent-orange: #f59e0b;
+    --accent-red: #f85149;
+    --accent-purple: #a371f7;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Kada je modal otvoren, minimaliziraj interakcije s pozadinom */
+body.modal-open {
+    overflow: hidden;
+}
+
+/* ============================================
+   ZAGLAVLJE
+   ============================================ */
+.header {
+    height: 56px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    flex-shrink: 0;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-icon {
+    font-size: 24px;
+}
+
+.logo-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.header-stats {
+    display: flex;
+    gap: 32px;
+}
+
+.header-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.header-stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--accent-orange);
+}
+
+.header-stat-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.analytics-btn {
+    padding: 8px 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.05s;
+}
+
+.analytics-btn:hover {
+    border-color: var(--text-muted);
+}
+
+.analytics-btn:active {
+    transform: translateY(1px);
+}
+
+.analytics-btn:focus {
+    outline: none;
+    border-color: var(--accent-orange);
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(63, 185, 80, 0.1);
+    border: 1px solid rgba(63, 185, 80, 0.3);
+    border-radius: 20px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--accent-green);
+    border-radius: 50%;
+    animation: pulse-green 2s ease-in-out infinite;
+}
+
+@keyframes pulse-green {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.status-indicator.loading .status-dot {
+    background: var(--accent-yellow);
+    animation: pulse-yellow 0.8s ease-in-out infinite;
+}
+
+@keyframes pulse-yellow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.status-text {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent-green);
+}
+
+.status-indicator.loading .status-text {
+    color: var(--accent-yellow);
+}
+
+/* ============================================
+   TRAKA FILTERA
+   ============================================ */
+.filter-bar {
+    height: 48px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 24px;
+    flex-shrink: 0;
+}
+
+.filter-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.filter-select {
+    padding: 6px 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.filter-input {
+    padding: 6px 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+    color-scheme: dark;
+}
+
+.filter-input:hover,
+.filter-select:hover {
+    border-color: var(--text-muted);
+}
+
+.filter-input:focus,
+.filter-select:focus {
+    border-color: var(--accent-orange);
+}
+
+.filter-select option {
+    background: var(--bg-secondary);
+}
+
+.quick-btns {
+    display: flex;
+    gap: 4px;
+}
+
+.quick-btn {
+    padding: 5px 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.quick-btn:hover {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.quick-btn.active {
+    background: var(--accent-orange);
+    border-color: var(--accent-orange);
+    color: #000;
+    font-weight: 500;
+}
+
+.apply-btn {
+    padding: 6px 16px;
+    background: var(--accent-orange);
+    border: none;
+    border-radius: 6px;
+    color: #000;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.apply-btn:hover {
+    background: #fbbf24;
+    transform: translateY(-1px);
+}
+
+.apply-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.apply-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.data-range-info {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* ============================================
+   RASPORED GLAVNOG SADRŽAJA
+   ============================================ */
+.main-content {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+/* ============================================
+   LIJEVA BOČNA TRAKA
+   ============================================ */
+.left-sidebar {
+    width: 280px;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.sidebar-section {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 14px;
+}
+
+.section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+}
+
+.boro-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.boro-btn {
+    padding: 6px 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.boro-btn:hover {
+    border-color: var(--text-muted);
+    color: var(--text-primary);
+}
+
+.boro-btn.active {
+    background: rgba(245, 158, 11, 0.15);
+    border-color: var(--accent-orange);
+    color: var(--accent-orange);
+}
+
+.layer-toggles {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.layer-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.layer-btn:hover {
+    border-color: var(--text-muted);
+}
+
+.layer-btn.active {
+    border-color: var(--accent-orange);
+    color: var(--text-primary);
+}
+
+.layer-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.layer-dot.collision {
+    background: var(--accent-red);
+    box-shadow: 0 0 8px rgba(248, 81, 73, 0.5);
+}
+
+.layer-dot.traffic {
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-yellow), var(--accent-red));
+}
+
+.layer-btn:not(.active) .layer-dot {
+    opacity: 0.3;
+}
+
+/* Legenda */
+.legend-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.legend-color {
+    width: 20px;
+    height: 12px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.legend-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-secondary);
+}
+
+.legend-note {
+    margin-top: 10px;
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+/* ============================================
+   OMOTAČ KARTE
+   ============================================ */
+.map-wrapper {
+    flex: 1;
+    position: relative;
+    background: var(--bg-primary);
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+/* Klizač vremena */
+.time-slider-container {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(22, 27, 34, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px 24px;
+    min-width: 480px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.time-slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.time-slider-title {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.time-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.time-display .period {
+    font-size: 12px;
+    color: var(--accent-orange);
+    margin-left: 4px;
+}
+
+.slider-wrapper {
+    position: relative;
+    padding: 8px 0;
+}
+
+.time-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--bg-tertiary);
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+}
+
+.time-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--accent-orange);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+    transition: transform 0.15s;
+}
+
+.time-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+}
+
+.slider-gradient {
+    position: absolute;
+    top: 8px;
+    left: 0;
+    right: 0;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right, 
+        #1a237e 0%, #1a237e 20%, #ff6f00 30%, #ffd600 45%, 
+        #ffd600 55%, #ff6f00 70%, #1a237e 85%, #1a237e 100%
+    );
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.time-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+}
+
+.play-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+}
+
+.play-btn {
+    width: 36px;
+    height: 36px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.play-btn:hover {
+    border-color: var(--accent-orange);
+}
+
+.play-btn.active {
+    background: var(--accent-orange);
+    border-color: var(--accent-orange);
+    color: #000;
+}
+
+.play-btn svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+}
+
+.speed-label {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.speed-btns {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.speed-btn {
+    padding: 4px 10px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.speed-btn:hover {
+    color: var(--text-primary);
+}
+
+.speed-btn.active {
+    background: var(--accent-orange);
+    border-color: var(--accent-orange);
+    color: #000;
+}
+
+/* Informacijski panel */
+.info-panel {
+    position: absolute;
+    bottom: 140px;
+    left: 20px;
+    background: rgba(22, 27, 34, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 16px;
+    min-width: 260px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    display: none;
+}
+
+.info-panel.visible {
+    display: block;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.info-street {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.info-location {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.info-stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.info-stat:last-child {
+    border-bottom: none;
+}
+
+.info-stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.info-stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.info-stat-value.highlight {
+    color: var(--accent-orange);
+}
+
+/* ============================================
+   DESNA BOČNA TRAKA - ANALITIKA
+   ============================================ */
+.right-sidebar {
+    width: 320px;
+    background: var(--bg-secondary);
+    border-left: 1px solid var(--border-color);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+/* ============================================
+   PROZOR ANALITIKE
+   ============================================ */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 9999;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    width: min(980px, 96vw);
+    height: min(90vh, 900px);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.modal-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.modal-close:hover {
+    border-color: var(--text-muted);
+}
+
+.modal-body {
+    flex: 1;
+    overflow: hidden;
+    padding: 14px;
+}
+
+/* Koristi postojeće stilove desne bočne trake, ali omogući da ispuni prozor i ima pomicanje */
+.analytics-panel {
+    width: 100% !important;
+    border-left: none !important;
+    padding: 0 !important;
+    height: 100%;
+}
+
+/* Na uređajima s dodirnim zaslonom, omogući prirodno pomicanje unutar prozora */
+.analytics-panel,
+.modal-body {
+    -webkit-overflow-scrolling: touch;
+}
+
+.right-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.right-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.right-sidebar::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+/* Mreža metrika */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+/* Razdjelnik sekcije */
+.section-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 0 8px;
+    margin-top: 8px;
+}
+
+.section-divider-icon {
+    font-size: 18px;
+}
+
+.section-divider-text {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Lista najprometnijih ulica */
+.top-streets-list {
+    padding: 8px 0;
+}
+
+.street-row {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-color);
+    gap: 12px;
+}
+
+.street-row:last-child {
+    border-bottom: none;
+}
+
+.street-rank {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    width: 20px;
+    text-align: center;
+}
+
+.street-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.street-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.street-location {
+    font-size: 10px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.street-volume {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-orange);
+    text-align: right;
+    min-width: 60px;
+}
+
+.street-bar {
+    width: 80px;
+    height: 6px;
+    background: var(--bg-primary);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.street-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--accent-green), var(--accent-orange));
+    transition: width 0.3s ease;
+}
+
+.metric-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+}
+
+.metric-card.blue { border-left: 3px solid var(--accent-blue); }
+.metric-card.red { border-left: 3px solid var(--accent-red); }
+.metric-card.green { border-left: 3px solid var(--accent-green); }
+.metric-card.purple { border-left: 3px solid var(--accent-purple); }
+
+.metric-icon {
+    font-size: 20px;
+    margin-bottom: 6px;
+}
+
+.metric-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.metric-card.blue .metric-value { color: var(--accent-blue); }
+.metric-card.red .metric-value { color: var(--accent-red); }
+.metric-card.green .metric-value { color: var(--accent-green); }
+.metric-card.purple .metric-value { color: var(--accent-purple); }
+
+.metric-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* Kartice grafova */
+.chart-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.chart-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.chart-icon {
+    font-size: 14px;
+}
+
+.chart-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.chart-subtitle {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.chart-container {
+    padding: 16px;
+    min-height: 160px;
+    height: auto;
+    overflow: visible;
+    position: relative;
+}
+
+.chart-container.tall {
+    min-height: 200px;
+}
+
+
+/* Stilovi D3 grafova */
+.chart-container svg {
+    overflow: visible;
+    display: block;
+    width: 100%;
+}
+
+.chart-container .axis text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    fill: var(--text-muted);
+}
+
+.chart-container .axis line,
+.chart-container .axis path {
+    stroke: var(--border-color);
+}
+
+.chart-container .axis .domain {
+    stroke: var(--border-color);
+}
+
+.chart-container .grid line {
+    stroke: rgba(48, 54, 61, 0.5);
+}
+
+.chart-container .bar {
+    transition: opacity 0.2s;
+    cursor: pointer;
+}
+
+.chart-container .bar:hover {
+    opacity: 0.8;
+}
+
+/* Tooltip grafova */
+.chart-tooltip {
+    position: fixed;
+    padding: 10px 14px;
+    background: rgba(22, 27, 34, 0.95);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text-primary);
+    pointer-events: none;
+    z-index: 10000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    max-width: 250px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.chart-tooltip.visible {
+    opacity: 1;
+}
+
+.chart-tooltip-title {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+.chart-tooltip-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 3px 0;
+}
+
+.chart-tooltip-label {
+    color: var(--text-muted);
+}
+
+.chart-tooltip-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--accent-orange);
+}
+
+.chart-tooltip-value.blue { color: var(--accent-blue); }
+.chart-tooltip-value.green { color: var(--accent-green); }
+.chart-tooltip-value.red { color: var(--accent-red); }
+.chart-tooltip-value.purple { color: var(--accent-purple); }
+
+/* Stilovi prstenastog grafa */
+.donut-chart-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 10px;
+}
+
+.donut-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.donut-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.donut-legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.donut-legend-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-left: auto;
+}
+
+/* Lista faktora */
+.factors-list {
+    padding: 12px 0;
+}
+
+.factor-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-color);
+    gap: 12px;
+}
+
+.factor-row:last-child {
+    border-bottom: none;
+}
+
+.factor-name {
+    font-size: 11px;
+    color: var(--text-secondary);
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.factor-bar {
+    width: 80px;
+    height: 6px;
+    background: var(--bg-primary);
+    border-radius: 3px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.factor-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--accent-orange), var(--accent-red));
+    transition: width 0.3s ease;
+}
+
+.factor-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-orange);
+    min-width: 50px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+/* Toplinska karta */
+.heatmap-container {
+    padding: 16px;
+}
+
+.heatmap-wrapper {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+}
+
+.heatmap-day-labels {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex-shrink: 0;
+}
+
+.heatmap-day-label {
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 4px;
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.heatmap-grid-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.heatmap-row {
+    display: grid;
+    grid-template-columns: repeat(24, 1fr);
+    gap: 2px;
+    height: 18px;
+}
+
+.heatmap-cell {
+    border-radius: 2px;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.heatmap-cell:hover {
+    transform: scale(1.3);
+    box-shadow: 0 0 8px rgba(248, 81, 73, 0.5);
+    z-index: 10;
+    position: relative;
+}
+
+.heatmap-hour-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    margin-left: 40px;
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Graf vrsta vozila */
+.vehicle-types-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 12px;
+}
+
+.vehicle-type-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--bg-secondary);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.vehicle-type-icon {
+    font-size: 20px;
+    width: 32px;
+    text-align: center;
+}
+
+.vehicle-type-info {
+    flex: 1;
+}
+
+.vehicle-type-name {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.vehicle-type-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Statistika ozljeda */
+.injury-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    padding: 12px;
+}
+
+@media (max-width: 600px) {
+    .injury-stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.injury-stat-card {
+    text-align: center;
+    padding: 12px 6px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.injury-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.injury-stat-card.fatal {
+    border-color: var(--accent-red);
+    background: rgba(248, 81, 73, 0.1);
+}
+
+.injury-stat-card.injured {
+    border-color: var(--accent-orange);
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.injury-stat-card.pedestrian {
+    border-color: var(--accent-blue);
+    background: rgba(88, 166, 255, 0.1);
+}
+
+.injury-stat-card.cyclist {
+    border-color: var(--accent-green);
+    background: rgba(63, 185, 80, 0.1);
+}
+
+.injury-stat-card.motorist {
+    border-color: var(--accent-purple);
+    background: rgba(163, 113, 247, 0.1);
+}
+
+.injury-stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.injury-stat-card.fatal .injury-stat-value { color: var(--accent-red); }
+.injury-stat-card.injured .injury-stat-value { color: var(--accent-orange); }
+.injury-stat-card.pedestrian .injury-stat-value { color: var(--accent-blue); }
+.injury-stat-card.cyclist .injury-stat-value { color: var(--accent-green); }
+.injury-stat-card.motorist .injury-stat-value { color: var(--accent-purple); }
+
+.injury-stat-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* Graf mjesečnog trenda */
+.trend-info {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 16px 8px;
+    font-size: 11px;
+}
+
+.trend-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.trend-stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.trend-stat-label {
+    font-size: 9px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.trend-up { color: var(--accent-red) !important; }
+.trend-down { color: var(--accent-green) !important; }
+
+/* ============================================
+   UČITAVANJE
+   ============================================ */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--bg-primary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.5s;
+}
+
+.loading-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--accent-orange);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-text {
+    margin-top: 20px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.loading-progress {
+    margin-top: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent-orange);
+}
+
+.progress-bar-container {
+    width: 300px;
+    height: 4px;
+    background: var(--border-color);
+    border-radius: 2px;
+    margin-top: 15px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: var(--accent-orange);
+    border-radius: 2px;
+    transition: width 0.3s;
+    width: 0%;
+}
+
+/* ============================================
+   PRILAGODBE ZA MAPBOX
+   ============================================ */
+.mapboxgl-popup-content {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color);
+    border-radius: 8px !important;
+    padding: 12px !important;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.mapboxgl-popup-tip {
+    border-top-color: var(--bg-secondary) !important;
+}
+
+.mapboxgl-popup-close-button {
+    color: var(--text-muted);
+    font-size: 18px;
+}
+
+.mapboxgl-popup-close-button:hover {
+    color: var(--text-primary);
+    background: transparent;
+}
+
+.mapboxgl-ctrl-group {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.mapboxgl-ctrl-group button {
+    background-color: transparent !important;
+}
+
+.mapboxgl-ctrl-group button + button {
+    border-top: 1px solid var(--border-color) !important;
+}
+
+.mapboxgl-ctrl-icon {
+    filter: invert(1);
+}
+
+/* ============================================
+   RESPONZIVNI DIZAJN
+   ============================================ */
+@media (max-width: 1400px) {
+    .right-sidebar {
+        width: 280px;
+    }
+    .left-sidebar {
+        width: 240px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .header-stats {
+        display: none;
+    }
+    .quick-btns {
+        display: none;
+    }
+}
+
+/* ============================================
+   ANALITIKU (DESNA BOČNA TRAKA)
+   ============================================ */
+.drawer-overlay {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 104px; /* zaglavlje (56) + traka filtera (48) */
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease;
+    z-index: 9000;
+}
+
+.drawer-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.analytics-drawer {
+    position: fixed;
+    top: 104px; /* zaglavlje + traka filtera */
+    right: 0;
+    height: calc(100vh - 104px);
+    width: 650px;
+    max-width: 95vw;
+    background: var(--bg-secondary);
+    border-left: 1px solid var(--border-color);
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.55);
+    transform: translateX(100%);
+    transition: transform 0.2s ease;
+    z-index: 9500;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.analytics-drawer.active {
+    transform: translateX(0);
+}
+
+.drawer-header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.drawer-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.drawer-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.drawer-close:hover {
+    border-color: var(--text-muted);
+    background: var(--bg-secondary);
+}
+
+.drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+/* Stilizacija trake za pomicanje analitike */
+.drawer-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.drawer-body::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+.drawer-body::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+.drawer-body::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* Omogući da panel analitike ispuni prozor */
+.analytics-drawer .analytics-panel {
+    width: 100% !important;
+    border-left: none !important;
+    padding: 14px !important;
+    overflow: visible !important;
+    height: auto !important;
+}
+
+.right-sidebar {
+    width: 320px;
+    background: var(--bg-secondary);
+    border-left: 1px solid var(--border-color);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.right-sidebar::-webkit-scrollbar {
+    width: 8px;
+}
+
+.right-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.right-sidebar::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+.right-sidebar::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
