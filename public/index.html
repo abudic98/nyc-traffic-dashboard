@@ -14,6 +14,35 @@
     
     <!-- Axios -->
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.2/dist/axios.min.js"></script>
+
+    <script>
+        (function (m, a, z, e) {
+            var s, t, u, v;
+            try {
+                t = m.sessionStorage.getItem('maze-us');
+            } catch (err) {}
+
+            if (!t) {
+                t = new Date().getTime();
+                try {
+                    m.sessionStorage.setItem('maze-us', t);
+                } catch (err) {}
+            }
+
+            u = document.currentScript || (function () {
+                var w = document.getElementsByTagName('script');
+                return w[w.length - 1];
+            })();
+            v = u && u.nonce;
+
+            s = a.createElement('script');
+            s.src = z + '?apiKey=' + e;
+            s.async = true;
+            if (v) s.setAttribute('nonce', v);
+            a.getElementsByTagName('head')[0].appendChild(s);
+            m.mazeUniversalSnippetApiKey = e;
+        })(window, document, 'https://snippet.maze.co/maze-universal-loader.js', '8948fa6c-731e-4696-a950-e585e3cfbdfb');
+    </script>
     
     <!-- Google Fontovi -->
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
